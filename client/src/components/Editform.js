@@ -3,19 +3,19 @@ import axios from "axios";
 import { ImCross } from 'react-icons/im';
 import { FaCheck } from 'react-icons/fa';
 
-function Postform({ cur, status, setLoadPosts }) {
+function Editform({ cur, status, details, setFormType, setLoadPosts }) {
 
-   const baseUrl = "http://localhost:5000/api/posts";
+   const baseUrl = `http://localhost:5000/api/posts/${details._id}`;
 
-   const [postType, setPostType] = useState('image');
-   const [name, setName] = useState('');
-   const [location, setLocation] = useState('');
-   const [caption, setCaption] = useState('');
-   const [title, setTitle] = useState('');
-   const [imgLink, setImgLink] = useState('');
+   const [postType, setPostType] = useState(details.postType);
+   const [name, setName] = useState(details.name);
+   const [location, setLocation] = useState(details.location);
+   const [caption, setCaption] = useState(details.caption);
+   const [title, setTitle] = useState(details.title);
+   const [imgLink, setImgLink] = useState(details.image);
 
    const handleSubmit = () => {
-      axios.post(baseUrl, {
+      axios.put(baseUrl, {
          name,
          location,
          image: imgLink,
@@ -24,8 +24,8 @@ function Postform({ cur, status, setLoadPosts }) {
          postType
       })
       .then((response) => {
-         if(response.status === 201) {
-            alert("Post creation success!");
+         if(response.status === 200) {
+            alert("Post edit success!");
          }
          console.log(response);
       })
@@ -34,6 +34,7 @@ function Postform({ cur, status, setLoadPosts }) {
          alert("Something went wrong :(");
       });
       status(!cur);
+      setFormType("Add");
       setLoadPosts((prev) => prev + 1);
    }
 
@@ -41,7 +42,7 @@ function Postform({ cur, status, setLoadPosts }) {
       <div className="backdrop">
          <div className="form">
             <div className="formtitlecard">
-               <p id="formtitle">Add New Post</p>
+               <p id="formtitle">Edit Post</p>
             </div>
             <div className="formFont">
                Username:
@@ -87,7 +88,7 @@ function Postform({ cur, status, setLoadPosts }) {
                </>
             )}
             <div className="rabtn">
-               <div onClick={() => status(!cur)}>
+               <div onClick={ () => { setFormType("Add"); status(!cur); } }>
                   <ImCross />
                </div>
                <div onClick={handleSubmit}>
@@ -99,4 +100,4 @@ function Postform({ cur, status, setLoadPosts }) {
    );
 }
 
-export default Postform;
+export default Editform;

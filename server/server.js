@@ -5,6 +5,7 @@ if(process.env.NODE_ENV !== "production") {   // value of NODE_ENV will be produ
 const express = require("express");
 const mongoose = require("mongoose");
 const app = express();
+const cors = require('cors');
 
 // Database connection
 let router;
@@ -26,6 +27,9 @@ mongoose.connect(process.env.DATABASE_URL, {
 
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
+app.use(cors({
+    origin: 'http://localhost:3000'
+}));
 
 const PORT = process.env.PORT || 5000;        //  PORT will be populuated when deployed to Heroku    
 app.listen(PORT,() => {

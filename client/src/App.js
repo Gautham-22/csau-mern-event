@@ -3,10 +3,37 @@ import Navbar from './components/Navbar';
 import Card from './components/Card';
 import Textcard from './components/Textcard';
 import Postform from './components/Postform';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from "axios";
+import Editform from './components/Editform';
 
 function App() {
-   const [showModal, setShowModal] = useState(true);
+   
+   const baseUrl = "http://localhost:5000/api/posts";
+
+   const [showModal, setShowModal] = useState(false);
+   const [posts, setPosts] = useState([]);
+   const [formType, setFormType] = useState("Add");
+   const [editPost, setEditPost] = useState(null);
+   const [loadPosts, setLoadPosts] = useState(0);
+
+   useEffect(() => {
+      axios.get(baseUrl)
+      .then((response) => {
+         if(response.status === 200) {
+            setPosts(response.data);
+         } else {
+            alert("Error getting posts!");
+            setPosts([]);
+         }
+         console.log(response);
+      })
+      .catch((err) => {
+         console.log(err);
+         alert("Error getting posts!");
+         setPosts([]);
+      });
+   }, [loadPosts]);
 
    return (
       <>
@@ -14,19 +41,34 @@ function App() {
             <div>
                <Navbar status={setShowModal} cur={showModal} />
                <div className="cards">
-                  <Card imglink="https://picsum.photos/seed/picsum/200/300" />
-                  <Card imglink="https://picsum.photos/seed/picsum/200/300" />
-                  <Card imglink="https://picsum.photos/seed/picsum/200/300" />
-                  <Card imglink="https://picsum.photos/seed/picsum/200/300" />
-                  <Card imglink="https://picsum.photos/seed/picsum/200/300" />
-                  <Textcard title="Hello world" caption="#welcome" />
-                  <Textcard title="Hello world" caption="#welcome" />
-                  <Textcard title="Hello world" caption="#welcome" />
-                  <Textcard title="Hello world" caption="#welcome" />
+                  {posts && posts.length 
+                     ?
+                        posts.map((post) => {
+                           if(post.postType === 'text') {
+                              return  <Textcard details={post} key={post._id} setFormType={setFormType} 
+                                 setShowModal={setShowModal} setEditPost={setEditPost} setLoadPosts={setLoadPosts}
+                              />
+                           }
+                           return <Card details={post} key={post._id} setFormType={setFormType} 
+                              setShowModal={setShowModal} setEditPost={setEditPost} setLoadPosts={setLoadPosts}
+                           />
+                        })
+                     :
+                     <p>No posts yet</p>
+                  }
                </div>
             </div>
          </div>
-         <>{showModal && <Postform status={setShowModal} cur={showModal} />}</>
+         <>
+            {formType==="Add" && showModal && 
+               <Postform status={setShowModal} cur={showModal} setLoadPosts={setLoadPosts} 
+            />}
+         </>
+         <>
+            {formType==="Edit" && showModal && 
+               <Editform status={setShowModal} cur={showModal} details={editPost} setFormType={setFormType} setLoadPosts={setLoadPosts}
+            />
+         }</>
       </>
    );
 }
